@@ -642,7 +642,8 @@ function connectToCloud(sessionId, showFeedback = true) {
 function fetchCloudData(showFeedback = true) {
   if (!syncSessionId) return;
 
-  fetch(SYNC_BUCKET_URL + syncSessionId)
+  // Append timestamp parameter to bypass browser/Vercel cache
+  fetch(SYNC_BUCKET_URL + syncSessionId + "?t=" + new Date().getTime())
     .then(res => {
       if (res.status === 200) {
         return res.json();
@@ -1029,12 +1030,15 @@ function escapeHtml(text) {
   return text.toString().replace(/[&<>"']/g, function(m) { return map[m]; });
 }
 
-// PWA Service Worker Registration
+// PWA Service Worker Registration (Disabled and Unregistered to prevent aggressive cache serving)
 function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('Service Worker Registered Successfully', reg.scope))
-      .catch(err => console.warn('Service Worker Registration Failed', err));
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for (let registration of registrations) {
+        registration.unregister();
+        console.log('Active Service Worker Unregistered successfully');
+      }
+    }).catch(err => console.warn('Failed to unregister Service Worker', err));
   }
 }
 

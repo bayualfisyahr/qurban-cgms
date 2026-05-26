@@ -1782,6 +1782,18 @@ input:checked + .slider:before {
     font-size: 0.78rem;
   }
   
+  /* Stack form rows vertically on mobile to prevent squeezed fields */
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .form-row .col-4,
+  .form-row .col-6 {
+    width: 100%;
+    flex: none;
+  }
+
   .fab-add-btn {
     right: 20px;
     bottom: 20px;
