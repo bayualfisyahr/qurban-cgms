@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Qurban Yayasan CGMS - Tahun 1447 H</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0A2E8A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Qurban CGMS">
+  <link rel="apple-touch-icon" href="logo.jpg">
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Google Fonts & Icon -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- jsPDF & AutoTable CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="logo-container">
+          <img src="logo.jpg" alt="Logo Yayasan CGMS" class="app-logo">
+        </div>
+        <div class="header-text">
+          <h1>Qurban Yayasan CGMS<br><span class="title-sub">Tahun 1447 H</span></h1>
+          <p>Sistem Pendataan & Rekapitulasi Kurban</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Tabs (Visible on mobile/tablet only) -->
+    <div class="mobile-tabs" id="mobile-tabs">
+      <button class="tab-btn active" data-tab="list-tab">Mudhohhi</button>
+      <button class="tab-btn" data-tab="calc-tab">Penerima Daging</button>
+    </div>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <div class="dashboard-layout">
+        
+        <!-- Left Panel: Mudohhii Data List -->
+        <div class="layout-left-panel tab-panel active" id="list-tab-panel">
+          
+          <!-- General Summary Dashboard -->
+          <section class="dashboard-section">
+            <h2 class="section-title">Status Pelaksanaan & Preferensi</h2>
+            <div class="dashboard-grid">
+              
+              <!-- Progress Summary -->
+              <div class="dash-card total-card">
+                <div class="dash-card-icon">👥</div>
+                <div class="dash-card-info">
+                  <span class="dash-card-label">Total Mudohhii</span>
+                  <span class="dash-card-value" id="stat-total-mudohhii">0</span>
+                </div>
+              </div>
+              
+              <div class="dash-card progress-dashboard-card">
+                <div class="dash-card-icon status-belum">🔪</div>
+                <div class="dash-card-info">
+                  <span class="dash-card-label">Disembelih</span>
+                  <span class="dash-card-value"><span id="stat-total-disembelih">0</span><span class="total-divider">/</span><span id="stat-total-hewan">0</span></span>
+                </div>
+              </div>
+              
+              <div class="dash-card progress-dashboard-card">
+                <div class="dash-card-icon status-diambil">🎁</div>
+                <div class="dash-card-info">
+                  <span class="dash-card-label">Didistribusi</span>
+                  <span class="dash-card-value"><span id="stat-total-didistribusi">0</span><span class="total-divider">/</span><span id="stat-total-dist-hewan">0</span></span>
+                </div>
+              </div>
+
+              <!-- Preferences Info (Small) -->
+              <div class="dash-card info-card">
+                <div class="dash-card-info">
+                  <span class="dash-card-label">📦 Diambil</span>
+                  <span class="dash-card-value font-medium" id="stat-pref-diambil">0</span>
+                </div>
+              </div>
+              
+              <div class="dash-card info-card">
+                <div class="dash-card-info">
+                  <span class="dash-card-label">🚚 Diantar</span>
+                  <span class="dash-card-value font-medium" id="stat-pref-diantar">0</span>
+                </div>
+              </div>
+              
+              <div class="dash-card info-card">
+                <div class="dash-card-info">
+                  <span class="dash-card-label">⏳ Belum Ditentukan</span>
+                  <span class="dash-card-value font-medium" id="stat-pref-belum">0</span>
+                </div>
+              </div>
+              
+            </div>
+          </section>
+
+          <!-- Search & Filter Area -->
+          <section class="control-section">
+            <div class="search-bar-container">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="search-input" placeholder="Cari berdasarkan nama..." autocomplete="off">
+              <button id="clear-search-btn" class="clear-search-btn" style="display: none;">✕</button>
+            </div>
+            
+            <div class="filter-actions">
+              <div class="select-wrapper">
+                <select id="filter-status">
+                  <option value="semua">Semua Preferensi</option>
+                  <option value="Diambil">Diambil</option>
+                  <option value="Diantar">Diantar</option>
+                  <option value="Belum Ditentukan">Belum Ditentukan</option>
+                </select>
+              </div>
+              
+              <button id="btn-pdf" class="btn-pdf-export">
+                <span class="btn-icon">📄</span> Unduh PDF
+              </button>
+              
+              <!-- Prominent Add Button (Green, highly visible on desktop) -->
+              <button id="btn-add-desktop" class="btn-primary btn-add-new-mudohhii">
+                <svg class="btn-svg-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Tambah Mudohhii
+              </button>
+            </div>
+          </section>
+
+          <!-- List Mudohhii -->
+          <section class="list-section">
+            <div class="list-header">
+              <h2 class="section-title">Daftar Mudohhii</h2>
+              <span class="count-badge" id="list-count">0 Data</span>
+            </div>
+            
+            <div class="mudohhii-list" id="mudohhii-container">
+              <!-- Dinamis diisi oleh JS -->
+              <div class="empty-state">
+                <div class="empty-icon">🐑</div>
+                <p>Tidak ada data mudohhii ditemukan</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right Panel: Meat Calculator & Distribution Recap -->
+        <div class="layout-right-panel tab-panel" id="calc-tab-panel">
+          
+
+          <!-- Meat Yield Recap Cards -->
+          <section class="dashboard-section">
+            <h2 class="section-title">Hasil Daging Kurban</h2>
+            <div class="meat-recap-grid">
+              <div class="meat-card bg-gradient-blue">
+                <div class="meat-card-icon">⚖️</div>
+                <div class="meat-card-info">
+                  <span class="meat-card-label">Total Berat Kurban</span>
+                  <span class="meat-card-value"><span id="meat-total-berat">0</span> kg</span>
+                </div>
+              </div>
+              <div class="meat-card bg-gradient-teal">
+                <div class="meat-card-icon">🛍️</div>
+                <div class="meat-card-info">
+                  <span class="meat-card-label">Total Bungkus Kurban</span>
+                  <span class="meat-card-value"><span id="meat-total-bungkus">0</span> bks</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Priority Distribution calculator -->
+          <section class="calculator-section">
+            <div class="calculator-card">
+              <div class="calculator-header">
+                <h3>Daftar Penerima Daging</h3>
+                <p>Distribusi diprioritaskan berurutan</p>
+              </div>
+              
+              <div class="calculator-body">
+                <!-- Priority 1: Mudhohi (Read-only total) -->
+                <div class="priority-row">
+                  <div class="priority-num">1</div>
+                  <div class="priority-info">
+                    <span class="priority-label">Mudhohi</span>
+                    <span class="priority-note">Total jatah Mudhohhi</span>
+                  </div>
+                  <div class="priority-value-display">
+                    <span id="dist-mudhohi">0</span> <span class="unit">bks</span>
+                  </div>
+                </div>
+
+                <!-- Priority 2: Pengurus yysn (Input) -->
+                <div class="priority-row">
+                  <div class="priority-num">2</div>
+                  <div class="priority-info">
+                    <label for="input-pengurus" class="priority-label">Pengurus Yayasan</label>
+                    <span class="priority-note">Alokasi panitia & pengurus</span>
+                  </div>
+                  <div class="priority-input-wrapper">
+                    <input type="number" id="input-pengurus" min="0" value="20" class="dist-input">
+                    <span class="unit-input">bks</span>
+                  </div>
+                </div>
+
+                <!-- Priority 3: Tetangga ofik (Input) -->
+                <div class="priority-row">
+                  <div class="priority-num">3</div>
+                  <div class="priority-info">
+                    <label for="input-tetangga" class="priority-label">Tetangga Ofik</label>
+                    <span class="priority-note">Wilayah sekitar Bpk. Ofik</span>
+                  </div>
+                  <div class="priority-input-wrapper">
+                    <input type="number" id="input-tetangga" min="0" value="30" class="dist-input">
+                    <span class="unit-input">bks</span>
+                  </div>
+                </div>
+
+                <!-- Priority 4: Team Qurban (Input) -->
+                <div class="priority-row">
+                  <div class="priority-num">4</div>
+                  <div class="priority-info">
+                    <label for="input-team" class="priority-label">Team Qurban</label>
+                    <span class="priority-note">Relawan penyembelihan</span>
+                  </div>
+                  <div class="priority-input-wrapper">
+                    <input type="number" id="input-team" min="0" value="25" class="dist-input">
+                    <span class="unit-input">bks</span>
+                  </div>
+                </div>
+
+                <!-- Priority 5: Halaqoh (Input/Auto-fill) -->
+                <div class="priority-row" id="halaqoh-row">
+                  <div class="priority-num">5</div>
+                  <div class="priority-info">
+                    <label for="input-halaqoh" class="priority-label">Halaqoh</label>
+                    <span class="priority-note">Sisa pembagian kurban</span>
+                  </div>
+                  <div class="priority-input-wrapper">
+                    <input type="number" id="input-halaqoh" min="0" class="dist-input">
+                    <span class="unit-input">bks</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="calculator-footer" id="dist-alert" style="display: none;">
+                <span class="alert-icon">⚠️</span>
+                <span class="alert-text">Jumlah alokasi melebihi total bungkus yang tersedia!</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- List of animals by weight and yield -->
+          <section class="animal-summary-section">
+            <h2 class="section-title">Rincian Hasil Per Hewan</h2>
+            <div class="animal-summary-table-container">
+              <div class="animal-summary-header">
+                <span>Mudhohhi</span> <!-- Renamed from Nama Jemaah to Mudhohhi -->
+                <span class="text-center">Berat <span class="header-unit">(kg)</span></span>
+                <span class="text-center">Hasil <span class="header-unit">(bks)</span></span>
+                <span class="text-center">Jatah <span class="header-unit">(bks)</span></span>
+              </div>
+              <div class="animal-summary-list" id="animal-summary-container">
+                <!-- Dinamis diisi oleh JS -->
+              </div>
+            </div>
+          </section>
+
+        </div>
+        
+      </div>
+    </main>
+
+    <!-- Floating Action Button for Add (Green with SVG, Hidden on Desktop, Visible on Mobile) -->
+    <button id="fab-add" class="fab-add-btn" aria-label="Tambah Data">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </button>
+    
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>© 2026 Yayasan Cahaya Generasi Mulia Sahabat</p>
+    </footer>
+
+    <!-- Form Modal (Add / Edit) -->
+    <div id="form-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="modal-title">Tambah Mudohhii</h3>
+          <button id="modal-close" class="modal-close-btn">✕</button>
+        </div>
+        <form id="mudohhii-form" autocomplete="off">
+          <input type="hidden" id="form-id">
+          
+          <div class="form-group">
+            <label for="form-nama">Nama Mudohhii</label>
+            <input type="text" id="form-nama" placeholder="Masukkan nama mudohhii..." required>
+          </div>
+          
+          <div class="form-group">
+            <label for="form-hewan">Jenis Hewan</label>
+            <div class="select-wrapper">
+              <select id="form-hewan" required>
+                <option value="Domba" selected>🐑 Domba</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Row for Meat Weights and Yields -->
+          <div class="form-row">
+            <div class="form-group col-4">
+              <label for="form-berat">Berat (kg)</label>
+              <input type="number" id="form-berat" min="0" placeholder="Opsional">
+            </div>
+            
+            <div class="form-group col-4">
+              <label for="form-total-bungkus">Total Bungkus</label>
+              <input type="number" id="form-total-bungkus" min="0" placeholder="Opsional">
+            </div>
+            
+            <div class="form-group col-4">
+              <label for="form-jatah-mudhohi">Jatah Mudhohi</label>
+              <input type="number" id="form-jatah-mudhohi" min="0" placeholder="Opsional">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="form-permintaan">Permintaan Khusus</label>
+            <textarea id="form-permintaan" rows="2" placeholder="Contoh: Bawa hewan sendiri, semua daging diambil..." required></textarea>
+          </div>
+          
+          <!-- Metod Pengambilan (Old Status) -->
+          <div class="form-group">
+            <label for="form-metode">Metode Pengambilan (Informasi)</label>
+            <div class="select-wrapper">
+              <select id="form-metode" required>
+                <option value="Belum Ditentukan" selected>⏳ Belum Ditentukan</option>
+                <option value="Diambil">📦 Diambil</option>
+                <option value="Diantar">🚚 Diantar</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Progress Statuses -->
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label for="form-status-sembelih">Penyembelihan</label>
+              <div class="select-wrapper">
+                <select id="form-status-sembelih" required>
+                  <option value="Belum" selected>Belum disembelih</option>
+                  <option value="Sudah">Sudah disembelih</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-group col-6">
+              <label for="form-status-distribusi">Distribusi Daging</label>
+              <div class="select-wrapper">
+                <select id="form-status-distribusi" required>
+                  <option value="Belum" selected>Belum didistribusikan</option>
+                  <option value="Sudah">Sudah didistribusikan</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" id="form-cancel-btn" class="btn-secondary">Batal</button>
+            <button type="submit" id="form-submit-btn" class="btn-primary">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Custom Confirm Dialog -->
+    <div id="confirm-modal" class="modal-overlay confirm-overlay">
+      <div class="modal-card confirm-card">
+        <div class="confirm-icon">⚠️</div>
+        <h3>Hapus Data?</h3>
+        <p id="confirm-message">Apakah Anda yakin ingin menghapus data ini secara permanen?</p>
+        <div class="confirm-actions">
+          <button id="confirm-cancel" class="btn-secondary">Batal</button>
+          <button id="confirm-ok" class="btn-danger">Hapus</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" class="pwa-banner">
+      <div class="pwa-banner-icon">
+        <img src="logo.jpg" alt="CGMS">
+      </div>
+      <div class="pwa-banner-text">
+        <h4>Instal Mudohhii CGMS</h4>
+        <p>Akses cepat dari layar utama & offline</p>
+      </div>
+      <div class="pwa-banner-actions">
+        <button id="pwa-btn-install" class="btn-pwa-install">Instal</button>
+        <button id="pwa-btn-close" class="btn-pwa-close">✕</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="logo-base64.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
