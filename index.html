@@ -178,6 +178,26 @@
                 </div>
               </div>
             </div>
+
+            <!-- Berat Per Bungkus Input -->
+            <div class="weight-package-setting-container" style="margin-top: 12px;">
+              <div class="weight-package-card">
+                <div class="weight-card-icon">📦</div>
+                <div class="weight-card-info">
+                  <label for="input-berat-bungkus" class="weight-card-label">Berat per Bungkus</label>
+                  <div class="weight-input-group">
+                    <input type="number" id="input-berat-bungkus" min="0" step="any" placeholder="0" class="weight-bungkus-input">
+                    <div class="select-wrapper unit-select-wrapper">
+                      <select id="select-berat-unit">
+                        <option value="kg">kg</option>
+                        <option value="ons">ons</option>
+                        <option value="gr">gr</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
 
           <!-- Priority Distribution calculator -->
@@ -189,11 +209,23 @@
               </div>
               
               <div class="calculator-body">
-                <!-- Priority 1: Mudhohi (Read-only total) -->
+                <!-- Priority 1: Total Hasil Daging (Read-only total) -->
                 <div class="priority-row">
                   <div class="priority-num">1</div>
                   <div class="priority-info">
-                    <span class="priority-label">Mudhohi</span>
+                    <span class="priority-label">Total Hasil Daging</span>
+                    <span class="priority-note">Total bungkus daging tersedia</span>
+                  </div>
+                  <div class="priority-value-display">
+                    <span id="dist-total-daging">0</span> <span class="unit">bks</span>
+                  </div>
+                </div>
+
+                <!-- Priority 2: Jatah Mudhohhi (Read-only total) -->
+                <div class="priority-row">
+                  <div class="priority-num">2</div>
+                  <div class="priority-info">
+                    <span class="priority-label">Jatah Mudhohhi</span>
                     <span class="priority-note">Total jatah Mudhohhi</span>
                   </div>
                   <div class="priority-value-display">
@@ -201,9 +233,9 @@
                   </div>
                 </div>
 
-                <!-- Priority 2: Pengurus yysn (Input) -->
+                <!-- Priority 3: Pengurus Yayasan (Input) -->
                 <div class="priority-row">
-                  <div class="priority-num">2</div>
+                  <div class="priority-num">3</div>
                   <div class="priority-info">
                     <label for="input-pengurus" class="priority-label">Pengurus Yayasan</label>
                     <span class="priority-note">Alokasi panitia & pengurus</span>
@@ -214,12 +246,12 @@
                   </div>
                 </div>
 
-                <!-- Priority 3: Tetangga ofik (Input) -->
+                <!-- Priority 4: Tetangga Ofik / Warga Sekitar (Input) -->
                 <div class="priority-row">
-                  <div class="priority-num">3</div>
+                  <div class="priority-num">4</div>
                   <div class="priority-info">
-                    <label for="input-tetangga" class="priority-label">Tetangga Ofik</label>
-                    <span class="priority-note">Wilayah sekitar Bpk. Ofik</span>
+                    <label for="input-tetangga" class="priority-label">Tetangga Ofik / Warga Sekitar</label>
+                    <span class="priority-note">Wilayah sekitar Bpk. Ofik / Warga sekitar</span>
                   </div>
                   <div class="priority-input-wrapper">
                     <input type="number" id="input-tetangga" min="0" value="30" class="dist-input">
@@ -227,9 +259,9 @@
                   </div>
                 </div>
 
-                <!-- Priority 4: Team Qurban (Input) -->
+                <!-- Priority 5: Team Qurban (Input) -->
                 <div class="priority-row">
-                  <div class="priority-num">4</div>
+                  <div class="priority-num">5</div>
                   <div class="priority-info">
                     <label for="input-team" class="priority-label">Team Qurban</label>
                     <span class="priority-note">Relawan penyembelihan</span>
@@ -240,9 +272,9 @@
                   </div>
                 </div>
 
-                <!-- Priority 5: Halaqoh (Input/Auto-fill) -->
+                <!-- Priority 6: Halaqoh (Input/Auto-fill) -->
                 <div class="priority-row" id="halaqoh-row">
-                  <div class="priority-num">5</div>
+                  <div class="priority-num">6</div>
                   <div class="priority-info">
                     <label for="input-halaqoh" class="priority-label">Halaqoh</label>
                     <span class="priority-note">Sisa pembagian kurban</span>

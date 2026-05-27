@@ -84,7 +84,9 @@ const DEFAULT_DIST_SETTINGS = {
   pengurus: 20,
   tetangga: 30,
   team: 25,
-  halaqoh: 0
+  halaqoh: 0,
+  beratBungkus: 0,
+  beratUnit: 'kg'
 };
 
 // App State
@@ -130,6 +132,7 @@ const statPrefBelum = document.getElementById('stat-pref-belum');
 // Meat Recap Elements (Right Panel)
 const meatTotalBerat = document.getElementById('meat-total-berat');
 const meatTotalBungkus = document.getElementById('meat-total-bungkus');
+const distTotalDagingDisplay = document.getElementById('dist-total-daging');
 const distMudhohiDisplay = document.getElementById('dist-mudhohi');
 const distAlert = document.getElementById('dist-alert');
 
@@ -138,6 +141,8 @@ const inputPengurus = document.getElementById('input-pengurus');
 const inputTetangga = document.getElementById('input-tetangga');
 const inputTeam = document.getElementById('input-team');
 const inputHalaqoh = document.getElementById('input-halaqoh');
+const inputBeratBungkus = document.getElementById('input-berat-bungkus');
+const selectBeratUnit = document.getElementById('select-berat-unit');
 
 // Form Modal Elements
 const formModal = document.getElementById('form-modal');
@@ -199,6 +204,12 @@ function loadData() {
   inputTetangga.value = distSettings.tetangga;
   inputTeam.value = distSettings.team;
   inputHalaqoh.value = distSettings.halaqoh !== undefined ? distSettings.halaqoh : 0;
+  if (inputBeratBungkus) {
+    inputBeratBungkus.value = distSettings.beratBungkus !== undefined ? (distSettings.beratBungkus || "") : "";
+  }
+  if (selectBeratUnit) {
+    selectBeratUnit.value = distSettings.beratUnit || "kg";
+  }
 
   // Load Cloud Sync settings (Forced automated shared background database)
   syncEnabled = true;
@@ -280,7 +291,10 @@ function renderMeatCalculations(autoFillHalaqoh = true) {
   meatTotalBerat.textContent = totalBerat.toLocaleString('id-ID');
   meatTotalBungkus.textContent = totalBungkus.toLocaleString('id-ID');
 
-  // Displaying distribution list jatah
+  // Displaying distribution list total daging & jatah
+  if (distTotalDagingDisplay) {
+    distTotalDagingDisplay.textContent = totalBungkus.toLocaleString('id-ID');
+  }
   distMudhohiDisplay.textContent = totalJatahMudhohi.toLocaleString('id-ID');
 
   // Check if sum of all distributions exceeds total
@@ -384,18 +398,28 @@ window.toggleDisembelih = function(id) {
   const item = mudohhiiData.find(d => d.id === id);
   if (!item) return;
 
-  item.disembelih = !item.disembelih;
-  saveDataToStorage();
-  updateAppView();
+  const msg = item.disembelih
+    ? "Hewan ini sudah disembelih, ubah status menjadi belum disembelih?"
+    : "Hewan ini belum disembelih, akan disembelih sekarang?";
+  if (confirm(msg)) {
+    item.disembelih = !item.disembelih;
+    saveDataToStorage();
+    updateAppView();
+  }
 };
 
 window.toggleDidistribusikan = function(id) {
   const item = mudohhiiData.find(d => d.id === id);
   if (!item) return;
 
-  item.didistribusikan = !item.didistribusikan;
-  saveDataToStorage();
-  updateAppView();
+  const msg = item.didistribusikan
+    ? "Daging kurban sudah didistribusikan, batalkan status distribusi?"
+    : "Daging kurban belum didistribusikan, distribusikan sekarang?";
+  if (confirm(msg)) {
+    item.didistribusikan = !item.didistribusikan;
+    saveDataToStorage();
+    updateAppView();
+  }
 };
 
 // Render Animal summary item rows (Aligned table columns, full name)
@@ -476,6 +500,20 @@ function setupEventListeners() {
     saveSettingsToStorage();
     renderMeatCalculations(false); // Do not recalculate remainder when user overrides it
   });
+
+  // Package weight inputs change listeners
+  if (inputBeratBungkus) {
+    inputBeratBungkus.addEventListener('input', () => {
+      distSettings.beratBungkus = parseFloat(inputBeratBungkus.value) || 0;
+      saveSettingsToStorage();
+    });
+  }
+  if (selectBeratUnit) {
+    selectBeratUnit.addEventListener('change', () => {
+      distSettings.beratUnit = selectBeratUnit.value;
+      saveSettingsToStorage();
+    });
+  }
 
   // Cloud Sync is automated in background
 
@@ -668,6 +706,12 @@ function fetchCloudData(showFeedback = true) {
           inputTetangga.value = distSettings.tetangga;
           inputTeam.value = distSettings.team;
           inputHalaqoh.value = distSettings.halaqoh !== undefined ? distSettings.halaqoh : 0;
+          if (inputBeratBungkus) {
+            inputBeratBungkus.value = distSettings.beratBungkus !== undefined ? (distSettings.beratBungkus || "") : "";
+          }
+          if (selectBeratUnit) {
+            selectBeratUnit.value = distSettings.beratUnit || "kg";
+          }
         }
 
         // Save local
@@ -702,7 +746,9 @@ function saveToCloud() {
       pengurus: parseInt(inputPengurus.value) || 0,
       tetangga: parseInt(inputTetangga.value) || 0,
       team: parseInt(inputTeam.value) || 0,
-      halaqoh: parseInt(inputHalaqoh.value) || 0
+      halaqoh: parseInt(inputHalaqoh.value) || 0,
+      beratBungkus: parseFloat(inputBeratBungkus.value) || 0,
+      beratUnit: selectBeratUnit.value || 'kg'
     }
   };
 
@@ -944,11 +990,12 @@ function exportToPDF() {
     ];
 
     const rowsDist = [
-      { no: '1', kategori: 'Jatah Mudhohi (Mudhohhi)', jumlah: `${totalJatahMudhohi} bks`, keterangan: 'Prioritas Utama (Hak Mudhohi)' },
-      { no: '2', kategori: 'Pengurus Yayasan', jumlah: `${pengurusVal} bks`, keterangan: 'Prioritas Kedua (Pengurus & Panitia)' },
-      { no: '3', kategori: 'Tetangga Ofik', jumlah: `${tetanggaVal} bks`, keterangan: 'Prioritas Ketiga (Masyarakat Sekitar)' },
-      { no: '4', kategori: 'Team Qurban (Relawan)', jumlah: `${teamVal} bks`, keterangan: 'Prioritas Keempat (Tenaga Kerja Pelaksana)' },
-      { no: '5', kategori: 'Halaqoh (Sisa)', jumlah: `${halaqohVal} bks`, keterangan: 'Prioritas Kelima (Sisa dibagikan merata)' }
+      { no: '1', kategori: 'Total Hasil Daging', jumlah: `${totalBungkus} bks`, keterangan: 'Total bungkus daging tersedia' },
+      { no: '2', kategori: 'Jatah Mudhohhi', jumlah: `${totalJatahMudhohi} bks`, keterangan: 'Total jatah diambil Mudhohhi' },
+      { no: '3', kategori: 'Pengurus Yayasan', jumlah: `${pengurusVal} bks`, keterangan: 'Alokasi panitia & pengurus yayasan' },
+      { no: '4', kategori: 'Tetangga Ofik / Warga Sekitar', jumlah: `${tetanggaVal} bks`, keterangan: 'Masyarakat & warga sekitar Bpk. Ofik' },
+      { no: '5', kategori: 'Team Qurban', jumlah: `${teamVal} bks`, keterangan: 'Tenaga relawan & team pelaksana' },
+      { no: '6', kategori: 'Halaqoh', jumlah: `${halaqohVal} bks`, keterangan: 'Pembagian halaqoh' }
     ];
 
     doc.autoTable({
@@ -984,7 +1031,8 @@ function exportToPDF() {
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(9);
     doc.setTextColor(10, 46, 138);
-    doc.text(`TOTAL KESELURUHAN HEWAN: ${mudohhiiData.length} Domba`, 18, sumY + 5);
+    const beratBungkusText = distSettings.beratBungkus ? `${distSettings.beratBungkus} ${distSettings.beratUnit}` : 'Belum ditentukan';
+    doc.text(`TOTAL KESELURUHAN HEWAN: ${mudohhiiData.length} Domba  |  BERAT PER BUNGKUS: ${beratBungkusText}`, 18, sumY + 5);
     doc.text(`TOTAL BERAT HEWAN: ${totalBerat} kg  |  TOTAL HASIL BUNGKUS DAGING: ${totalBungkus} bks`, 18, sumY + 10);
 
     // Signatures

@@ -1816,3 +1816,115 @@ input:checked + .slider:before {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* Weight Package Settings Styling */
+.weight-package-setting-container {
+  margin-top: 12px;
+}
+
+.weight-package-card {
+  background-color: var(--white);
+  border-radius: 18px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  transition: var(--transition);
+}
+
+.weight-package-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.weight-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: var(--bg-app);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  color: var(--secondary);
+}
+
+.weight-card-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+}
+
+.weight-card-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  cursor: pointer;
+}
+
+.weight-input-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 170px;
+}
+
+.weight-bungkus-input {
+  width: 75px;
+  padding: 8px 6px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  text-align: right;
+  outline: none;
+  background-color: var(--bg-app);
+  transition: var(--transition);
+}
+
+.weight-bungkus-input:focus {
+  border-color: var(--accent);
+  background-color: var(--white);
+}
+
+.unit-select-wrapper {
+  width: 75px;
+}
+
+.unit-select-wrapper select {
+  padding: 8px 24px 8px 8px !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  background-color: var(--bg-app) !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: 8px !important;
+  color: var(--text-dark) !important;
+}
+
+@media (max-width: 480px) {
+  .weight-card-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .weight-input-group {
+    width: 100%;
+    max-width: 100%;
+  }
+  .weight-bungkus-input {
+    flex: 1;
+    width: 100%;
+  }
+  .unit-select-wrapper {
+    flex: 1;
+    width: 100%;
+  }
+}
