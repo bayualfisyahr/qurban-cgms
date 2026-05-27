@@ -92,7 +92,7 @@ const DEFAULT_DIST_SETTINGS = {
 // App State
 let mudohhiiData = [];
 let distSettings = {};
-let deleteTargetId = null;
+let confirmCallback = null;
 let deferredPrompt = null;
 
 // Cloud Sync State
@@ -398,28 +398,50 @@ window.toggleDisembelih = function(id) {
   const item = mudohhiiData.find(d => d.id === id);
   if (!item) return;
 
+  const title = item.disembelih ? "Batal Sembelih?" : "Sembelih Hewan?";
   const msg = item.disembelih
-    ? "Hewan ini sudah disembelih, ubah status menjadi belum disembelih?"
-    : "Hewan ini belum disembelih, akan disembelih sekarang?";
-  if (confirm(msg)) {
-    item.disembelih = !item.disembelih;
-    saveDataToStorage();
-    updateAppView();
-  }
+    ? `Apakah Anda yakin ingin mengubah status hewan kurban atas nama <strong>${escapeHtml(item.nama)}</strong> menjadi <strong>Belum disembelih</strong>?`
+    : `Apakah Anda yakin? Hewan kurban atas nama <strong>${escapeHtml(item.nama)}</strong> akan ditandai <strong>Sudah disembelih</strong> sekarang?`;
+  const icon = "🔪";
+
+  showConfirm({
+    title: title,
+    message: msg,
+    icon: icon,
+    confirmText: !item.disembelih ? "Ya, Sembelih" : "Ya, Lanjutkan",
+    cancelText: "Batal",
+    isDanger: false,
+    onConfirm: () => {
+      item.disembelih = !item.disembelih;
+      saveDataToStorage();
+      updateAppView();
+    }
+  });
 };
 
 window.toggleDidistribusikan = function(id) {
   const item = mudohhiiData.find(d => d.id === id);
   if (!item) return;
 
+  const title = item.didistribusikan ? "Batal Distribusi?" : "Distribusikan Daging?";
   const msg = item.didistribusikan
-    ? "Daging kurban sudah didistribusikan, batalkan status distribusi?"
-    : "Daging kurban belum didistribusikan, distribusikan sekarang?";
-  if (confirm(msg)) {
-    item.didistribusikan = !item.didistribusikan;
-    saveDataToStorage();
-    updateAppView();
-  }
+    ? `Apakah Anda yakin ingin mengubah status distribusi daging kurban atas nama <strong>${escapeHtml(item.nama)}</strong> menjadi <strong>Belum didistribusikan</strong>?`
+    : `Apakah Anda yakin? Daging kurban atas nama <strong>${escapeHtml(item.nama)}</strong> akan ditandai <strong>Sudah didistribusikan</strong> sekarang?`;
+  const icon = "🎁";
+
+  showConfirm({
+    title: title,
+    message: msg,
+    icon: icon,
+    confirmText: !item.didistribusikan ? "Ya, Distribusikan" : "Ya, Lanjutkan",
+    cancelText: "Batal",
+    isDanger: false,
+    onConfirm: () => {
+      item.didistribusikan = !item.didistribusikan;
+      saveDataToStorage();
+      updateAppView();
+    }
+  });
 };
 
 // Render Animal summary item rows (Aligned table columns, full name)
@@ -476,7 +498,12 @@ function setupEventListeners() {
 
   // Confirm Modal
   confirmCancel.addEventListener('click', closeConfirmModal);
-  confirmOk.addEventListener('click', executeDelete);
+  confirmOk.addEventListener('click', () => {
+    if (confirmCallback) {
+      confirmCallback();
+    }
+    closeConfirmModal();
+  });
 
   // PDF Export
   btnPdf.addEventListener('click', exportToPDF);
@@ -622,31 +649,59 @@ function handleFormSubmit(e) {
   closeModal();
 }
 
+// Generic Custom Confirm Overlay Dialog Handler
+function showConfirm({ title, message, icon, confirmText, cancelText, isDanger, onConfirm }) {
+  const confirmIconEl = document.getElementById('confirm-icon');
+  const confirmTitleEl = document.getElementById('confirm-title');
+  const confirmMessageEl = document.getElementById('confirm-message');
+  const confirmOkBtn = document.getElementById('confirm-ok');
+  const confirmCancelBtn = document.getElementById('confirm-cancel');
+
+  if (confirmIconEl) {
+    confirmIconEl.textContent = icon || "⚠️";
+    confirmIconEl.style.color = isDanger ? "var(--danger)" : "var(--secondary)";
+  }
+  if (confirmTitleEl) confirmTitleEl.textContent = title || "Konfirmasi";
+  if (confirmMessageEl) confirmMessageEl.innerHTML = message;
+  
+  if (confirmOkBtn) {
+    confirmOkBtn.textContent = confirmText || "Ya";
+    confirmOkBtn.className = isDanger ? "btn-danger" : "btn-primary";
+  }
+  
+  if (confirmCancelBtn) {
+    confirmCancelBtn.textContent = cancelText || "Batal";
+  }
+
+  confirmCallback = onConfirm;
+  confirmModal.classList.add('active');
+}
+
+// Close Confirm Modal
+function closeConfirmModal() {
+  confirmModal.classList.remove('active');
+  confirmCallback = null;
+}
+
 // Trigger Delete Confirmation Modal
 window.triggerDelete = function(id) {
   const item = mudohhiiData.find(d => d.id === id);
   if (!item) return;
 
-  deleteTargetId = id;
-  confirmMessage.innerHTML = `Apakah Anda yakin ingin menghapus data kurban atas nama <strong>${escapeHtml(item.nama)}</strong>?`;
-  confirmModal.classList.add('active');
+  showConfirm({
+    title: "Hapus Data?",
+    message: `Apakah Anda yakin ingin menghapus data kurban atas nama <strong>${escapeHtml(item.nama)}</strong> secara permanen?`,
+    icon: "🗑️",
+    confirmText: "Hapus",
+    cancelText: "Batal",
+    isDanger: true,
+    onConfirm: () => {
+      mudohhiiData = mudohhiiData.filter(item => item.id !== id);
+      saveDataToStorage();
+      updateAppView();
+    }
+  });
 };
-
-// Close Delete Confirmation Modal
-function closeConfirmModal() {
-  confirmModal.classList.remove('active');
-  deleteTargetId = null;
-}
-
-// Execute Delete Action
-function executeDelete() {
-  if (deleteTargetId !== null) {
-    mudohhiiData = mudohhiiData.filter(item => item.id !== deleteTargetId);
-    saveDataToStorage();
-    updateAppView();
-  }
-  closeConfirmModal();
-}
 
 // Format Date Utility
 function formatTanggal(date) {
