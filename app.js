@@ -94,7 +94,7 @@ let deleteTargetId = null;
 let deferredPrompt = null;
 
 // Cloud Sync State
-const SYNC_BUCKET_URL = "https://kvdb.io/w8u9k3m2a7d4p5q2v6z1/cgms_kurban_1447h_";
+const SYNC_BUCKET_URL = "https://kvdb.io/99pKZkEcfxmgY4CxLZPH1a/cgms_kurban_1447h_";
 let syncEnabled = false;
 let syncSessionId = "";
 let syncIntervalId = null;
